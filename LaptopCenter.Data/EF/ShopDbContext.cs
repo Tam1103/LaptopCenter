@@ -1,5 +1,6 @@
 ﻿using LaptopCenter.Data.Configurations;
 using LaptopCenter.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace LaptopCenter.Data.EF
 {
-    public class ShopDbContext : IdentityDbContext
+    public class ShopDbContext : IdentityDbContext<AppUser,AppRole,Guid>
     {
         public ShopDbContext(DbContextOptions options) : base(options)
         {
@@ -32,6 +33,17 @@ namespace LaptopCenter.Data.EF
             modelBuilder.ApplyConfiguration(new ProductTranslationConfiguration());
             modelBuilder.ApplyConfiguration(new PromotionConfiguration());
             modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+
+            modelBuilder.ApplyConfiguration(new AppUserConfiguration());
+            modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
+
+            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserCalims");
+            modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AppUserRoles").HasKey(x => new{ x.UserId, x.RoleId});
+            modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogins").HasKey(x=>x.UserId);
+
+            modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppUserRoleClaims");
+            modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x=>x.UserId);
+            
 
             //base.OnModelCreating(modelBuilder);
         }
@@ -61,7 +73,11 @@ namespace LaptopCenter.Data.EF
 
         public DbSet<Transaction> Transactions { get; set; }
 
+        public DbSet<Transaction> AppUsers { get; set; }
 
+        public DbSet<Transaction> AppRoles { get; set; }
+
+       
 
     }
 }
